@@ -1,4 +1,4 @@
-pragma solidity ^0.4.6;
+pragma solidity ^1.8.17;
 
 contract Plutocracy {
     function getOrModifyBlocked(address _account) returns (bool);
