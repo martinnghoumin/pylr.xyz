@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity 0.8.4;
+pragma solidity 0.8.17;
 
-import {CrowdfundStorage} from "./CrowdfundStorage.sol";
+import {fundStorage} from "./fundStorage.sol";
 
-interface ICrowdfundFactory {
+interface IfundFactory {
     function mediaAddress() external returns (address);
 
     function logic() external returns (address);
@@ -12,31 +12,27 @@ interface ICrowdfundFactory {
     function parameters()
         external
         returns (
-            address payable operator,
+            address payable builder,
             address payable fundingRecipient,
             uint256 fundingCap,
-            uint256 operatorPercent,
+            uint256 builderPercent,
             string memory name,
             string memory symbol
         );
 }
 
-/**
- * @title CrowdfundProxy
- * @author MirrorXYZ
- */
-contract CrowdfundProxy is CrowdfundStorage {
+contract fundProxy is fundStorage {
     constructor() {
-        logic = ICrowdfundFactory(msg.sender).logic();
-        // Crowdfund-specific data.
+        logic = IfundFactory(msg.sender).logic();
+        // fund-specific data.
         (
-            operator,
+            builder,
             fundingRecipient,
             fundingCap,
-            operatorPercent,
+            builderPercent,
             name,
             symbol
-        ) = ICrowdfundFactory(msg.sender).parameters();
+        ) = IfundFactory(msg.sender).parameters();
         // Initialize mutable storage.
         status = Status.FUNDING;
     }
