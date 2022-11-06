@@ -1,31 +1,27 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity 0.8.4;
+pragma solidity 0.8.17;
 
-import {CrowdfundProxy} from "./CrowdfundProxy.sol";
+import {fundProxy} from "./fundProxy.sol";
 
-/**
- * @title CrowdfundFactory
- * @author MirrorXYZ
- */
-contract CrowdfundFactory {
+contract fundFactory {
     //======== Structs ========
 
     struct Parameters {
-        address payable operator;
+        address payable builder;
         address payable fundingRecipient;
         uint256 fundingCap;
-        uint256 operatorPercent;
+        uint256 builderPercent;
         string name;
         string symbol;
     }
 
     //======== Events ========
 
-    event CrowdfundDeployed(
-        address crowdfundProxy,
+    event Deployed(
+        address fundProxy,
         string name,
         string symbol,
-        address operator
+        address builder
     );
 
     //======== Immutable storage =========
@@ -45,31 +41,31 @@ contract CrowdfundFactory {
 
     //======== Deploy function =========
 
-    function createCrowdfund(
+    function createfund(
         string calldata name_,
         string calldata symbol_,
-        address payable operator_,
+        address payable builder_,
         address payable fundingRecipient_,
         uint256 fundingCap_,
-        uint256 operatorPercent_
-    ) external returns (address crowdfundProxy) {
+        uint256 builderPercent_
+    ) external returns (address fundProxy) {
         parameters = Parameters({
             name: name_,
             symbol: symbol_,
-            operator: operator_,
+            builder: builder_,
             fundingRecipient: fundingRecipient_,
             fundingCap: fundingCap_,
-            operatorPercent: operatorPercent_
+            builderPercent: builderPercent_
         });
 
-        crowdfundProxy = address(
-            new CrowdfundProxy{
-                salt: keccak256(abi.encode(name_, symbol_, operator_))
+        fundProxy = address(
+            new fundProxy{
+                salt: keccak256(abi.encode(name_, symbol_, builder_))
             }()
         );
 
         delete parameters;
 
-        emit CrowdfundDeployed(crowdfundProxy, name_, symbol_, operator_);
+        emit fundDeployed(fundProxy, name_, symbol_, builder_);
     }
 }
