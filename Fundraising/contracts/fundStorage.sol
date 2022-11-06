@@ -1,11 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity 0.8.4;
+pragma solidity 0.8.17;
 
-/**
- * @title CrowdfundStorage
- * @author MirrorXYZ
- */
-contract CrowdfundStorage {
+
+contract fundStorage {
     // The two states that this contract can exist in. "FUNDING" allows
     // contributors to add funds.
     enum Status {FUNDING, TRADING}
@@ -20,8 +17,8 @@ contract CrowdfundStorage {
 
     // ============ Immutable Storage ============
 
-    // The operator has a special role to change contract status.
-    address payable public operator;
+    // The builder has a special role to change contract status.
+    address payable public builder;
     address payable public fundingRecipient;
     // We add a hard cap to prevent raising more funds than deemed reasonable.
     uint256 public fundingCap;
