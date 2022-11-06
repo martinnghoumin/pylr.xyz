@@ -23,7 +23,7 @@ contract fundStorage {
     // We add a hard cap to prevent raising more funds than deemed reasonable.
     uint256 public fundingCap;
     // The operator takes some equity in the tokens, represented by this percent.
-    uint256 public operatorPercent;
+    uint256 public builderPercent;
     string public symbol;
     string public name;
 
