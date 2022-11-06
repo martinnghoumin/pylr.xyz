@@ -1,16 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity 0.8.4;
+pragma solidity 0.8.17;
 
-import {CrowdfundStorage} from "./CrowdfundStorage.sol";
+import {fundStorage} from "./fundStorage.sol";
 
 /**
- * @title CrowdfundLogic
- * @author MirrorXYZ
- *
  * Crowdfund the creation of NFTs by issuing ERC20 tokens that
  * can be redeemed for the underlying value of the NFT once sold.
  */
-contract CrowdfundLogic is CrowdfundStorage {
+contract fundLogic is fundStorage {
     // ============ Events ============
 
     event ReceivedERC721(uint256 tokenId, address sender);
@@ -27,13 +24,8 @@ contract CrowdfundLogic is CrowdfundStorage {
     );
 
     // ============ Modifiers ============
-
-    /**
-     * @dev Modifier to check whether the `msg.sender` is the operator.
-     * If it is, it will run the function. Otherwise, it will revert.
-     */
-    modifier onlyOperator() {
-        require(msg.sender == operator);
+    modifier onlyBuilder() {
+        require(msg.sender == builder);
         _;
     }
 
@@ -53,11 +45,6 @@ contract CrowdfundLogic is CrowdfundStorage {
 
     // ============ Crowdfunding Methods ============
 
-    /**
-     * @notice Mints tokens for the sender propotional to the
-     *  amount of ETH sent in the transaction.
-     * @dev Emits the Contribution event.
-     */
     function contribute(address payable backer, uint256 amount)
         external
         payable
@@ -65,16 +52,11 @@ contract CrowdfundLogic is CrowdfundStorage {
     {
         require(status == Status.FUNDING, "Crowdfund: Funding must be open");
         require(amount == msg.value, "Crowdfund: Amount is not value sent");
-        // This first case is the happy path, so we will keep it efficient.
-        // The balance, which includes the current contribution, is less than or equal to cap.
         if (address(this).balance <= fundingCap) {
-            // Mint equity for the contributor.
             _mint(backer, valueToTokens(amount));
             emit Contribution(backer, amount);
         } else {
-            // Compute the balance of the crowdfund before the contribution was made.
             uint256 startAmount = address(this).balance - amount;
-            // If that amount was already greater than the funding cap, then we should revert immediately.
             require(
                 startAmount < fundingCap,
                 "Crowdfund: Funding cap already reached"
@@ -136,23 +118,23 @@ contract CrowdfundLogic is CrowdfundStorage {
         value = tokenAmount / TOKEN_SCALE;
     }
 
-    // ============ Operator Methods ============
+    // ============ Builder Methods ============
 
     /**
-     * @notice Transfers all funds to operator, and mints tokens for the operator.
+     * @notice Transfers all funds to builder, and mints tokens for the builder.
      *  Updates status to TRADING.
      * @dev Emits the FundingClosed event.
      */
-    function closeFunding() external onlyOperator nonReentrant {
+    function closeFunding() external onlyBuilder nonReentrant {
         require(status == Status.FUNDING, "Crowdfund: Funding must be open");
         // Close funding status, move to tradable.
         status = Status.TRADING;
-        // Mint the operator a percent of the total supply.
-        uint256 operatorTokens =
-            (operatorPercent * totalSupply) / (100 - operatorPercent);
-        _mint(operator, operatorTokens);
+        // Mint the builder a percent of the total supply.
+        uint256 builderTokens =
+            (builderPercent * totalSupply) / (100 - builderPercent);
+        _mint(builder, builderTokens);
         // Announce that funding has been closed.
-        emit FundingClosed(address(this).balance, operatorTokens);
+        emit FundingClosed(address(this).balance, builderTokens);
         // Transfer all funds to the fundingRecipient.
         sendValue(fundingRecipient, address(this).balance);
     }
