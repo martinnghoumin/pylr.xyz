@@ -1,17 +1,15 @@
 import "./TokenCreation.sol";
 
-pragma solidity ^0.4.4;
+pragma solidity ^0.8.17;
 
 contract DAOInterface {
-    // The minimum voting period that a generic milestone disbursment can have
-    uint constant minProposalDebatePeriod = 3 days;
-    // The minimum debate period that a split proposal can have
-    uint constant quorumHalvingPeriod = 25 weeks;
+    // The minimum voting period that a generic milestone disbursement can have
+    uint constant minProposalDebatePeriod = 2 days;
     // Period after which a proposal is closed
     // (used in the case `executeProposal` fails because it throws)
-    uint constant executeProposalPeriod = 10 days;
+    uint constant executeProposalPeriod = 1 day;
     // Time for vote freeze. A proposal needs to have majority support before votingDeadline - preSupportTime
-    uint constant preSupportTime = 2 days;
+    uint constant preSupportTime = 1 day;
     // Denotes the maximum proposal deposit that can be given. It is given as
     // a fraction of total Ether spent plus balance of the DAO
     uint constant maxDepositDivisor = 100;
@@ -21,11 +19,6 @@ contract DAOInterface {
 
     // Proposals to spend the DAO's ether
     Proposal[] public proposals;
-    // The quorum needed for each proposal is partially calculated by
-    // totalSupply / minQuorumDivisor
-    uint public minQuorumDivisor;
-    // The unix time of the last time quorum was reached on a proposal
-    uint public lastTimeMinQuorumMet;
 
     // Address of the curator
     address public curator;
@@ -51,8 +44,8 @@ contract DAOInterface {
     // A proposal with `newCurator == true` represents a DAO split
     struct Proposal {
         // The address where the `amount` will go to if the proposal is accepted
-        address recipient;
-        // The amount to transfer to `recipient` if the proposal is accepted.
+        address builder;
+        // The amount to transfer to `builder` if the proposal is accepted.
         uint amount;
         // A plain text description of the proposal
         string description;
@@ -60,16 +53,13 @@ contract DAOInterface {
         uint votingDeadline;
         // True if the proposal's votes have yet to be counted, otherwise False
         bool open;
-        // True if quorum has been reached, the votes have been counted, and
-        // the majority said yes
+        // True if >50% has voted yes upon minProposalDebatePeriod
         bool proposalPassed;
         // A hash to check validity of a proposal
         bytes32 proposalHash;
         // Deposit in wei the creator added when submitting their proposal. It
         // is taken from the msg.value of a newProposal call.
         uint proposalDeposit;
-        // True if this proposal is to assign a new Curator
-        bool newCurator;
         // true if more tokens are in favour of the proposal than opposed to it at
         // least `preSupportTime` before the voting deadline
         bool preSupport;
