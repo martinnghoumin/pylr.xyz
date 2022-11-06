@@ -1,6 +1,6 @@
 import "./Token.sol";
 
-pragma solidity ^0.4.4;
+pragma solidity ^1.8.17;
 
 contract TokenCreationInterface {
     /// @dev Constructor setting the minimum fueling goal and the
